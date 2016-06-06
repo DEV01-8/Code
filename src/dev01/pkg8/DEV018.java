@@ -11,17 +11,60 @@ import java.util.ArrayList;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
 
-
 public class DEV018 extends PApplet {
 
     JSONObject json;
+    // ArrayLists to put extracted values in from JSONArray.
+    ArrayList<Float> depthArray = new ArrayList();
+    ArrayList<Float> sizeArray = new ArrayList();
+    ArrayList<Float> longArray = new ArrayList();
+    ArrayList<Float> latArray = new ArrayList();
 
     @Override
     public void settings() {
         size(600, 487);
     }
 
-    public void Convert(float longitude, float latitude, float size, float depth) {
+    @Override
+    public void setup() {
+        //Set Title
+        surface.setTitle("Waarnemingen van aardschokken in IJsland");
+
+        //Set map of Iceland as background
+        PImage photo = loadImage("C:/bg.png");
+        background(photo);
+        
+        readText();
+
+    }
+
+    public static void main(String[] args) {
+        PApplet.main(new String[]{DEV018.class.getName()});
+    }
+
+    private void readText() {
+        //Load JSON File
+        json = loadJSONObject("C:/ijsland-metingen.json");
+
+        //Get Array from JSON File
+        JSONArray resultArray = json.getJSONArray("results");
+
+        //Put values in appropriate ArrayLists
+        for (int i = 0; i < resultArray.size(); i++) {
+            JSONObject firstResults = resultArray.getJSONObject(i);
+            Float depth = firstResults.getFloat("depth");
+            Float size = firstResults.getFloat("size");
+            Float longitude = firstResults.getFloat("longitude");
+            Float latitude = firstResults.getFloat("latitude");
+
+            depthArray.add(depth);
+            sizeArray.add(size);
+            longArray.add(longitude);
+            latArray.add(latitude);
+        }
+    }
+
+    private void convert(float longitude, float latitude, float size, float depth) {
 
         float pointA = map(longitude, (float) -26.0, (float) -12.0, 0, 600);
         float pointB = map(latitude, (float) 67.0, (float) 63.0, 0, 487);
@@ -29,29 +72,31 @@ public class DEV018 extends PApplet {
         float Size = size;
 
         //Colors
+        colorMode(RGB, 255, 0, 0);
+
         int red = color(255, 0, 0);
         int orange = color(255, 130, 0);
         int yellow = color(255, 213, 0);
         int green = color(0, 255, 0);
         int blue = color(0, 0, 255);
 
-        //Choose the correct color 
+        //Choose the correct color
         if (Size <= -0.5 && Size >= -1) {
             fill(red);
         }
 
         if (Size <= 0.0 && Size >= -0.5) {
-            fill(orange);
+            fill(red);
         }
 
         if (Size <= 0.5 && Size >= 0.0) {
-            fill(yellow);
+            fill(red);
         }
 
         if (Size <= 1.0 && Size >= 0.5) {
-            fill(green);
+            fill(red);
         } else if (Size > 1.0) {
-            fill(blue);
+            fill(red);
         }
 
         //Create point on map with x and y
@@ -89,48 +134,14 @@ public class DEV018 extends PApplet {
         }
     }
 
-    @Override
-    public void setup() {
-        //Set Title
-        surface.setTitle("Waarnemingen van aardschokken in IJsland");
-
-        //Set map of Iceland as background
-        PImage photo = loadImage("C:/bg.png");
-        background(photo);
-
-        //Load JSON File
-        json = loadJSONObject("C:/ijsland-metingen.json");
-
-        //Get Array from JSON File
-        JSONArray resultArray = json.getJSONArray("results");
-
-        // ArrayLists to put extracted values in from JSONArray.
-        ArrayList depthArray = new ArrayList();
-        ArrayList sizeArray = new ArrayList();
-        ArrayList longArray = new ArrayList();
-        ArrayList latArray = new ArrayList();
-
-        //Put values in appropriate ArrayLists
-        for (int i = 0; i < resultArray.size(); i++) {
-            JSONObject firstResults = resultArray.getJSONObject(i);
-            Float depth = firstResults.getFloat("depth");
-            Float size = firstResults.getFloat("size");
-            Float longitude = firstResults.getFloat("longitude");
-            Float latitude = firstResults.getFloat("latitude");
-
-            depthArray.add(depth);
-            sizeArray.add(size);
-            longArray.add(longitude);
-            latArray.add(latitude);
-        }
-
+    private void createPoints() {
         //For-loop to get items from ArrayList and then convert them to fit in window.
         for (int i = 0; i < longArray.size(); i++) {
             float longi = (float) longArray.get(i);
             float lati = (float) latArray.get(i);
             float size = (float) sizeArray.get(i);
             float depth = (float) depthArray.get(i);
-            Convert(longi, lati, size, depth);
+            convert(longi, lati, size, depth);
         }
     }
 
@@ -146,7 +157,7 @@ public class DEV018 extends PApplet {
         line(427, 0, 427, 342);    // - 16 long
         line(523, 0, 523, 342);    // - 14 long
         line(0, 150, 600, 150);    // 66 lat
-        line(0, 366, 412, 366);    // 64 lat   
+        line(0, 366, 412, 366);    // 64 lat
 
         //Legenda
         fill(255, 255, 255, 15);
@@ -196,10 +207,6 @@ public class DEV018 extends PApplet {
         //Divider
         fill(0, 0, 0);
         line(412, 411, 600, 411);
-    }
-
-    public static void main(String[] args) {
-        PApplet.main(new String[]{DEV018.class.getName()});
     }
 
 }

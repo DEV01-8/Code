@@ -15,10 +15,7 @@ public class DEV018 extends PApplet {
 
     JSONObject json;
     // ArrayLists to put extracted values in from JSONArray.
-    ArrayList<Float> depthArray = new ArrayList();
-    ArrayList<Float> sizeArray = new ArrayList();
-    ArrayList<Float> longArray = new ArrayList();
-    ArrayList<Float> latArray = new ArrayList();
+    ArrayList<Point> points = new ArrayList();
 
     @Override
     public void settings() {
@@ -33,9 +30,8 @@ public class DEV018 extends PApplet {
         //Set map of Iceland as background
         PImage photo = loadImage("C:/bg.png");
         background(photo);
-        
-        readText();
 
+        readText();
     }
 
     public static void main(String[] args) {
@@ -57,23 +53,19 @@ public class DEV018 extends PApplet {
             Float longitude = firstResults.getFloat("longitude");
             Float latitude = firstResults.getFloat("latitude");
 
-            depthArray.add(depth);
-            sizeArray.add(size);
-            longArray.add(longitude);
-            latArray.add(latitude);
+            Point point = new Point(longitude, latitude, size, depth);
+            points.add(point);
         }
     }
 
-    private void convert(float longitude, float latitude, float size, float depth) {
+    private void convert(Point point) {
 
-        float pointA = map(longitude, (float) -26.0, (float) -12.0, 0, 600);
-        float pointB = map(latitude, (float) 67.0, (float) 63.0, 0, 487);
-        float Depth = depth;
-        float Size = size;
+        float pointA = map(point.getLongitude(), (float) -26.0, (float) -12.0, 0, 600);
+        float pointB = map(point.getLatitude(), (float) 67.0, (float) 63.0, 0, 487);
+        float Depth = point.getDepth();
+        float Size = point.getSize();
 
         //Colors
-        colorMode(RGB, 255, 0, 0);
-
         int red = color(255, 0, 0);
         int orange = color(255, 130, 0);
         int yellow = color(255, 213, 0);
@@ -86,17 +78,17 @@ public class DEV018 extends PApplet {
         }
 
         if (Size <= 0.0 && Size >= -0.5) {
-            fill(red);
+            fill(orange);
         }
 
         if (Size <= 0.5 && Size >= 0.0) {
-            fill(red);
+            fill(yellow);
         }
 
         if (Size <= 1.0 && Size >= 0.5) {
-            fill(red);
+            fill(green);
         } else if (Size > 1.0) {
-            fill(red);
+            fill(blue);
         }
 
         //Create point on map with x and y
@@ -136,12 +128,8 @@ public class DEV018 extends PApplet {
 
     private void createPoints() {
         //For-loop to get items from ArrayList and then convert them to fit in window.
-        for (int i = 0; i < longArray.size(); i++) {
-            float longi = (float) longArray.get(i);
-            float lati = (float) latArray.get(i);
-            float size = (float) sizeArray.get(i);
-            float depth = (float) depthArray.get(i);
-            convert(longi, lati, size, depth);
+        for (int i = 0; i < points.size(); i++) {
+            convert(points.get(i));
         }
     }
 

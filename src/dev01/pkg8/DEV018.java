@@ -16,6 +16,13 @@ public class DEV018 extends PApplet {
     JSONObject json;
     // ArrayLists to put extracted values in from JSONArray.
     ArrayList<Point> points = new ArrayList();
+    //Colors
+    int red = color(255, 0, 0);
+    int orange = color(255, 130, 0);
+    int yellow = color(255, 213, 0);
+    int green = color(0, 255, 0);
+    int blue = color(0, 0, 255);
+    int[] colors = {blue, green, yellow, orange, red};
 
     @Override
     public void settings() {
@@ -28,7 +35,7 @@ public class DEV018 extends PApplet {
         surface.setTitle("Waarnemingen van aardschokken in IJsland");
 
         //Set map of Iceland as background
-        PImage photo = loadImage("C:/bg.png");
+        PImage photo = loadImage("../data/bg.png");
         background(photo);
 
         readText();
@@ -40,7 +47,7 @@ public class DEV018 extends PApplet {
 
     private void readText() {
         //Load JSON File
-        json = loadJSONObject("C:/ijsland-metingen.json");
+        json = loadJSONObject("../data/ijsland-metingen.json");
 
         //Get Array from JSON File
         JSONArray resultArray = json.getJSONArray("results");
@@ -64,13 +71,6 @@ public class DEV018 extends PApplet {
         float pointB = map(point.getLatitude(), (float) 67.0, (float) 63.0, 0, 487);
         float Depth = point.getDepth();
         float Size = point.getSize();
-
-        //Colors
-        int red = color(255, 0, 0);
-        int orange = color(255, 130, 0);
-        int yellow = color(255, 213, 0);
-        int green = color(0, 255, 0);
-        int blue = color(0, 0, 255);
 
         //Choose the correct color
         if (Size <= -0.5 && Size >= -1) {
@@ -135,15 +135,24 @@ public class DEV018 extends PApplet {
 
     @Override
     public void draw() {
+        //Start method createPoints();
+        createPoints();
 
-        //Lines for latitude and longitude
+        int startX = 65;
+        int startY = 0;
+        int endX = 65;
+        int endY = 487;
+        
         fill(255, 255, 255);
-        line(65, 0, 65, 487);      // -24 long
-        line(158, 0, 158, 487);    // -22 long
-        line(250, 0, 250, 487);    // -20 long
-        line(336, 0, 336, 487);    // -18 long
-        line(427, 0, 427, 342);    // - 16 long
-        line(523, 0, 523, 342);    // - 14 long
+
+        //Lines longitude
+        for (int i = 0; i < 6; i++) {
+            line(startX, startY, endX, endY);
+            startX = startX + 91;
+            endX = endX + 91;
+        }
+        
+        //Lines latitude
         line(0, 150, 600, 150);    // 66 lat
         line(0, 366, 412, 366);    // 64 lat
 
@@ -151,50 +160,58 @@ public class DEV018 extends PApplet {
         fill(255, 255, 255, 15);
         rect(412, 342, 300, 200);
         textSize(11);
-
-        //RED
-        fill(255, 0, 0);
-        ellipse(424, 420, 12, 12);
-        triangle(418, 345, 418, 355, 427, 345);
+        
+        String[] textDepth = {
+            "Diepte tussen 1.0 en 3.0",
+            "Diepte tussen 4.0 en 6.0",
+            "Diepte tussen 7.0 en 9.0",
+            "Diepte tussen 10.0 en 12.0",
+            "Diepte groter dan 12.0"
+        };
+        
+        String[] textSize = {
+            "Omvang tussen -1.0 en -0.5",
+            "Omvang tussen -0.5 en 0.0",
+            "Omvang tussen 0.0 en 0.5",
+            "Omvang tussen 0.5 en 1.0",
+            "Omvang groter dan 1.0"
+        };
+        
+        int textDepthX = 435;
+        int textDepthY = 353;
+        int textSizeX = 435;
+        int textSizeY = 423;
+        
+        //Create text for legenda
         fill(0, 0, 0);
-        text("Diepte tussen 1.0 en 3.0", 435, 353);
-        text("Omvang tussen -1.0 en -0.5", 435, 423);
+        for (int i = 0; i < textDepth.length; i++) {
+            text(textDepth[i], textDepthX, textDepthY);
+            text(textSize[i], textSizeX, textSizeY);
+            
+            textDepthY = textDepthY + 13;
+            textSizeY = textSizeY + 15;
+        }
+        
+        int ellipseX = 424;
+        int ellipseY = 420;
+        int ellipseSize = 9;
+        
+        int triangleX12 = 418;
+        int triangleX3 = 427;
+        int triangleY13 = 345;
+        int triangleY2 = 355;
+        
+        //Create icons legenda
+        for (int i = 0; i < 5; i++) {
+            fill(colors[i]);
+            ellipse(ellipseX, ellipseY, ellipseSize, ellipseSize);
+            triangle(triangleX12, triangleY13, triangleX12, triangleY2, triangleX3, triangleY13);
+            
+            ellipseY = ellipseY + 15;
+            triangleY13 = triangleY13 + 13;
+            triangleY2 = triangleY2 + 13;
+        }
 
-        //ORANGE
-        fill(255, 130, 0);
-        ellipse(424, 435, 12, 12);
-        triangle(418, 358, 418, 368, 427, 358);
-        fill(0, 0, 0);
-        text("Diepte tussen 4.0 en 6.0", 435, 366);
-        text("Omvang tussen -0.5 en 0.0", 435, 438);
-
-        //YELLOW
-        fill(255, 213, 0);
-        ellipse(424, 450, 12, 12);
-        triangle(418, 371, 418, 381, 427, 371);
-        fill(0, 0, 0);
-        text("Diepte tussen 7.0 en 9.0", 435, 379);
-        text("Omvang tussen 0.0 en 0.5", 435, 453);
-
-        //GREEN
-        fill(0, 255, 0);
-        ellipse(424, 465, 12, 12);
-        triangle(418, 384, 418, 394, 427, 384);
-        fill(0, 0, 0);
-        text("Diepte tussen 10.0 en 12.0", 435, 392);
-        text("Omvang tussen 0.5 en 1.0", 435, 468);
-
-        //BLUE
-        fill(0, 0, 255);
-        ellipse(424, 480, 12, 12);
-        triangle(418, 397, 418, 407, 427, 397);
-        fill(0, 0, 0);
-        text("Diepte groter dan 12.0", 435, 407);
-        text("Omvang groter dan 1.0", 435, 483);
-
-        //Divider
-        fill(0, 0, 0);
-        line(412, 411, 600, 411);
     }
 
 }
